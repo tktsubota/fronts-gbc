@@ -1,0 +1,12 @@
+# Build output
+build/
+
+# Simulation output
+sims/
+*.h5
+
+# Armadillo source cloned by setup.sh
+armadillo-code/
+
+# macOS
+.DS_Store
