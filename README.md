@@ -8,13 +8,13 @@ This code accompanies the paper:
 
 The solver integrates, in a frame moving with speed $c(t)$,
 
-$$u_t = a(t)\,u(1-u) + d(t)\,u_{xx} + c(t)\,u_x \qquad \text{(fisher-basic)}$$
+$$u_t = a(t)u(1-u) + d(t)u_{xx} + c(t)u_x \qquad \text{(fisher-basic)}$$
 
-$$u_t = a(t)\,u + d(t)\,u_{xx} + c(t)\,u_x + u^2 - (1 + a(t))\,u^3 \qquad \text{(fisher23)}$$
+$$u_t = a(t)u + d(t)u_{xx} + c(t)u_x + u^2 - (1 + a(t))u^3 \qquad \text{(fisher23)}$$
 
-where the frame speed is tied to the diffusion coefficient by $c(t) = \gamma\, d(t)$ for a constant $\gamma$.
+where the frame speed is tied to the diffusion coefficient by $c(t) = \gamma d(t)$ for a constant $\gamma$.
 
-**Note:** In this codebase, including the various descriptions below, the spatial coordinate $x$ is the comoving coordinate $z = x_{\text{lab}} - \int_0^t c(t')\,dt'$ in the text.
+**Note:** In this codebase, including the various descriptions below, the spatial coordinate $x$ is the comoving coordinate $z = x_{\text{lab}} - \int_0^t c(t')dt'$ in the text.
 
 ## Installation
 
@@ -103,7 +103,7 @@ Types for `a` and `d`:
 | `step`                   | $1$ for $x < 0$, $0$ otherwise                           |                   |
 | `exp λ` (or `exponential`) | $e^{-\lambda \lvert x \rvert}$                         | $\lambda = 1$     |
 | `tanh a`                 | $\tfrac12 \tanh(-ax) + \tfrac12$                         | $a = 1$           |
-| `gaussian σ`             | $\frac{1}{\sqrt{2\pi}\,\sigma} e^{-x^2/(2\sigma^2)}$     | $\sigma = 1$      |
+| `gaussian σ`             | $\frac{1}{\sqrt{2\pi}\sigma} e^{-x^2/(2\sigma^2)}$     | $\sigma = 1$      |
 | `line`                   | $1$ everywhere                                           |                   |
 
 ### Green's function caches (`-m`, `-n`)
@@ -142,7 +142,7 @@ Starts from $u(x, 0) = e^{-|x|/2}$. A shallow initial condition with steepness $
     -T 100 -d 0.02 -x -40 -X 30 -D 0.01 -o 50 -b 10
 ```
 
-Simulates $u_t = a(t)\,u(1-u) + u_{xx} + 2.5\,u_x$ with $a(t) = 1 + 0.01t$. The front speeds up from $2$, so in this frame it first drifts left and then turns around.
+Simulates $u_t = a(t)u(1-u) + u_{xx} + 2.5u_x$ with $a(t) = 1 + 0.01t$. The front speeds up from $2$, so in this frame it first drifts left and then turns around.
 
 ### Pushed front
 
@@ -177,12 +177,12 @@ with h5py.File("sims/20261005T160259Z_sim.h5", "r") as f:
     params = dict(f.attrs)
 ```
 
-To convert to lab-frame positions, add $\int_0^t c(t')\,dt' = \gamma \int_0^t d(t')\,dt'$.
+To convert to lab-frame positions, add $\int_0^t c(t')dt' = \gamma \int_0^t d(t')dt'$.
 
 ## Notes and limitations
 
 - **Initial conditions outside the domain.** The GBC accounts for the part of the initial condition lying in the linear region only for `exp` initial conditions. For the others, that part is treated as zero, which is a good approximation when the initial condition is steep (e.g. `step`, `gaussian`).
-- **Frame speed.** The closed-form Green's function requires $c(t) = \gamma\, d(t)$, so the frame cannot follow an arbitrary $c(t)$. See the paper's appendix on choosing $\gamma$.
+- **Frame speed.** The closed-form Green's function requires $c(t) = \gamma d(t)$, so the frame cannot follow an arbitrary $c(t)$. See the paper's appendix on choosing $\gamma$.
 - **Initial time.** Only `t0 = 0` is supported.
 - **Time step.** For time-dependent coefficients, use a small `dt` to resolve the time dependence; large `dt` gives poor agreement with theory.
 - **Memory.** The full solution is held in memory and written at the end of the run, and nothing is saved if the run is interrupted. Use `-o` to reduce the output size for long runs.
@@ -192,7 +192,7 @@ To convert to lab-frame positions, add $\int_0^t c(t')\,dt' = \gamma \int_0^t d(
 
 **New PDE.** Subclass `FisherBasicSolver` and override `update_rhs` with the new nonlinearity (see `Fisher23Solver`), then add it to the solver selection in `main.cxx`. The GBC assumes the linearization about $u = 0$ is $u_t = a(t)u + d(t)u_{xx} + c(t)u_x$, so new nonlinearities must preserve that.
 
-**New coefficient type.** Add a `Coefficient` subclass to `options.h` and `options.cxx` implementing both `func(t)` and its antiderivative `integral(t)`, which the Green's function integrals use. Then add it to `make_coefficient` and `scale_params` in `main.cxx`. `scale_params` describes how to multiply the coefficient by a constant: for $a + bt$ both parameters scale, but for $ae^{bt}$ only $a$ does. It is used to build $c(t) = \gamma\, d(t)$ from `d`.
+**New coefficient type.** Add a `Coefficient` subclass to `options.h` and `options.cxx` implementing both `func(t)` and its antiderivative `integral(t)`, which the Green's function integrals use. Then add it to `make_coefficient` and `scale_params` in `main.cxx`. `scale_params` describes how to multiply the coefficient by a constant: for $a + bt$ both parameters scale, but for $ae^{bt}$ only $a$ does. It is used to build $c(t) = \gamma d(t)$ from `d`.
 
 **New initial condition.** Add an `InitialCondition` subclass to `options.h` and `options.cxx`, and add it to the initial-condition selection in `main.cxx`. Its contribution from outside the domain will be treated as zero.
 
