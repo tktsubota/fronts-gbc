@@ -83,7 +83,7 @@ Output is written to `sims/` in the current working directory, which is created 
 
 ### Coefficients (`-P`)
 
-The string lists `a`, `d`, and `gamma`, each followed by a type and its parameters, e.g. `"a linear 1 0.01 d const 1 gamma manual 2.5"`. Omitted coefficients default to `a const 1`, `d const 1`, `gamma manual 2`. The frame speed is always $c(t) = \gamma\, d(t)$.
+The string lists `a`, `d`, and `gamma`, each followed by a type and its parameters, e.g. `"a linear 1 0.01 d const 1 gamma manual 2.5"`. Omitted coefficients default to `a const 1`, `d const 1`, `gamma manual 2`. The frame speed is always $c(t) = \gamma d(t)$.
 
 Types for `a` and `d`:
 
@@ -133,7 +133,7 @@ The same run as the [quick start](#quick-start), but with a zero Dirichlet condi
     -T 100 -d 0.1 -x -30 -X 30 -D 0.01 -o 10 -b 10
 ```
 
-Starts from $u(x, 0) = e^{-|x|/2}$. A shallow initial condition with steepness $\lambda < 1$ propagates at speed $\lambda + 1/\lambda$, which is $2.5$ here, faster than the pulled speed $2$. The frame moves at $c = 2.5$, so the front stays in place. The GBC accounts for the part of the initial condition beyond the right boundary.
+Starts from $u(x, 0) = e^{-|x|/2}$. A shallow initial condition with steepness $\lambda < 1$ propagates at speed $\lambda + 1/\lambda$, which is $2.5$ here, faster than the pulled speed $2$. The frame moves at $c = 2.5$, so the front stays in place.
 
 ### Time-dependent growth rate
 
